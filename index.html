@@ -6,44 +6,78 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="description" content="" />
 
-<link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/light/main.css">
-<script src="https://js.arcgis.com/4.25/"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.25/"></script>
 
-<script>  
-  require([
-   "esri/config", 
-   "esri/Map", 
-   "esri/views/MapView"
-  ], function(esriConfig, Map, MapView) {   
- 
-   esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurEzkBozXZgPgjPozCzklawWD863C9mArHp4QeXfLaiy8L2BJTmm_eFlkRBmh-rS8f86DIaVxCZv1qDyzDjRyrQtKAoG97CplbDXiwWMA2bYqtEAxH9-MHlA3tDGSjUp93BMOHIaqXguOZxzW8cFVKszpoaoEbOPaECd9FiSLY6Rg-2FBhrb9bssxhS2Mh6EcsLusRR-qwO3qSJK5S8_0-lU3r-pdC0akyfo2hyekjELXAT1_Mj7DoXAA";
-   const map = new Map({ 
-    basemap: "arcgis-topographic" // Basemap layer 
-   });
+  <script>
+    require([
+      "esri/config",
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/widgets/BasemapGallery",
+      "esri/widgets/Locate",
+      "esri/widgets/Search",
+      "esri/widgets/Expand"
+    ], function (esriConfig, Map, MapView, BasemapGallery, Locate, Search, Expand) {
 
-   const view = new MapView({
-     map: map,
-     center: [-97.7431, 30.2672], // Longitude, latitude
-     zoom: 13, // Zoom level
-     container: "viewDiv" // Div element
-   });
- });  
-</script>
+      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurEzkBozXZgPgjPozCzklawWD863C9mArHp4QeXfLaiy8L2BJTmm_eFlkRBmh-rS8f86DIaVxCZv1qDyzDjRyrQtKAoG97CplbDXiwWMA2bYqtEAxH9-MHlA3tDGSjUp93BMOHIaqXguOZxzW8cFVKszpoaoEbOPaECd9FiSLY6Rg-2FBhrb9bssxhS2Mh6EcsLusRR-qwO3qSJK5S8_0-lU3r-pdC0akyfo2hyekjELXAT1_Mj7DoXAA";
 
-<style>  
- html,  
- body,  
-   #viewDiv {  
-    padding: 0;  
-    margin: 0;  
-    height: 100%;  
-    width: 100%;  
-  }  
-</style>
+      // CHALLENGE 2: change basemap
+      const map = new Map({
+        basemap: "arcgis-imagery" // try: "arcgis-streets", "arcgis-light-gray", "osm-standard"
+      });
+
+      const view = new MapView({
+        map: map,
+
+          // CHALLENGE 1: Center + scale on WI State Capitol Area
+         center: [-89.3840, 43.0747], // Wisconsin State Capitol Square
+         scale: 20000,
+
+        container: "viewDiv"
+      });
+
+      // CHALLENGE 5: Search bar
+      const searchWidget = new Search({
+        view: view
+      });
+      view.ui.add(searchWidget, "top-right");
+
+      // CHALLENGE 4: Locate button
+      const locateWidget = new Locate({
+        view: view
+      });
+      view.ui.add(locateWidget, "top-left");
+
+      // CHALLENGE 3: Basemap Gallery (UI)
+      const basemapGallery = new BasemapGallery({
+        view: view
+      });
+
+      // Wrap gallery in an Expand so it’s not huge
+      const bgExpand = new Expand({
+        view: view,
+        content: basemapGallery,
+        expanded: false
+      });
+      view.ui.add(bgExpand, "top-left");
+    });
+  </script>
+
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
 
 </head>
 <body>
-  # the div to display the map
-  <div id="viewDiv"></div> 
+  <!-- the div to display the map -->
+  <div id="viewDiv"></div>
 </body>
 </html>
