@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Hello, world!</title>
+  <title>Lab 2 - Read AGOL</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="" />
 
   <link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/light/main.css">
   <script src="https://js.arcgis.com/4.25/"></script>
@@ -17,50 +16,213 @@
       "esri/widgets/BasemapGallery",
       "esri/widgets/Locate",
       "esri/widgets/Search",
-      "esri/widgets/Expand"
-    ], function (esriConfig, Map, MapView, BasemapGallery, Locate, Search, Expand) {
+      "esri/widgets/Expand",
 
-      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurEzkBozXZgPgjPozCzklawWD863C9mArHp4QeXfLaiy8L2BJTmm_eFlkRBmh-rS8f86DIaVxCZv1qDyzDjRyrQtKAoG97CplbDXiwWMA2bYqtEAxH9-MHlA3tDGSjUp93BMOHIaqXguOZxzW8cFVKszpoaoEbOPaECd9FiSLY6Rg-2FBhrb9bssxhS2Mh6EcsLusRR-qwO3qSJK5S8_0-lU3r-pdC0akyfo2hyekjELXAT1_Mj7DoXAA";
+      // graphics + layers
+      "esri/Graphic",
+      "esri/layers/GraphicsLayer",
+      "esri/layers/FeatureLayer"
 
-      // CHALLENGE 2: change basemap
+    ], function (
+      esriConfig,
+      Map,
+      MapView,
+      BasemapGallery,
+      Locate,
+      Search,
+      Expand,
+      Graphic,
+      GraphicsLayer,
+      FeatureLayer
+    ) {
+
+      // API key
+      esriConfig.apiKey =
+        "AAPTxy8BH1VEsoebNVZXo8HurEzkBozXZgPgjPozCzklawWD863C9mArHp4QeXfLaiy8L2BJTmm_eFlkRBmh-rS8f86DIaVxCZv1qDyzDjRyrQtKAoG97CplbDXiwWMA2bYqtEAxH9-MHlA3tDGSjUp93BMOHIaqXguOZxzW8cFVKszpoaoEbOPaECd9FiSLY6Rg-2FBhrb9bssxhS2Mh6EcsLusRR-qwO3qSJK5S8_0-lU3r-pdC0akyfo2hyekjELXAT1_Mj7DoXAA";
+
+      // base map
       const map = new Map({
         basemap: "arcgis-imagery"
       });
 
       const view = new MapView({
         map: map,
-
-          // CHALLENGE 1: Center + scale on WI State Capitol Area
-         center: [-89.3840, 43.0747], // Wisconsin State Capitol Square
-         scale: 5000,
-
+        center: [-89.3840, 43.0747],
+        scale: 5000,
         container: "viewDiv"
       });
 
-      // CHALLENGE 5: Search bar
-      const searchWidget = new Search({
-        view: view
-      });
-      view.ui.add(searchWidget, "top-right");
+      // UI widgets
+      view.ui.add(new Search({ view: view }), "top-right");
+      view.ui.add(new Locate({ view: view }), "top-left");
 
-      // CHALLENGE 4: Locate button
-      const locateWidget = new Locate({
-        view: view
-      });
-      view.ui.add(locateWidget, "top-left");
+      const basemapGallery = new BasemapGallery({ view: view });
+      view.ui.add(
+        new Expand({
+          view: view,
+          content: basemapGallery
+        }),
+        "top-left"
+      );
 
-      // CHALLENGE 3: Basemap Gallery (UI)
-      const basemapGallery = new BasemapGallery({
-        view: view
+      // =====================================================
+      // Part 3: graphics layer for custom features
+      // =====================================================
+      const graphicsLayer = new GraphicsLayer();
+      map.add(graphicsLayer);
+
+      // point geometry
+      const point = {
+        type: "point",
+        longitude: -89.3840,
+        latitude: 43.0747
+      };
+
+      // marker symbol (diamond)
+      const pointSymbol = {
+        type: "simple-marker",
+        style: "diamond",
+        color: [0, 0, 139],
+        outline: {
+          color: [255, 255, 255],
+          width: 1
+        }
+      };
+
+      const pointGraphic = new Graphic({
+        geometry: point,
+        symbol: pointSymbol,
+        attributes: {
+          Name: "Capitol Square",
+          Description: "Graphic point added using GraphicsLayer."
+        },
+        popupTemplate: {
+          title: "{Name}",
+          content: "{Description}"
+        }
       });
 
-      // Wrap gallery in an Expand so it’s not huge
-      const bgExpand = new Expand({
-        view: view,
-        content: basemapGallery,
-        expanded: false
+      graphicsLayer.add(pointGraphic);
+
+      // =====================================================
+      // Challenge 2: polyline and polygon
+      // =====================================================
+      const polylineGraphic = new Graphic({
+        geometry: {
+          type: "polyline",
+          paths: [
+            [-89.392, 43.070],
+            [-89.384, 43.080],
+            [-89.376, 43.072]
+          ]
+        },
+        symbol: {
+          type: "simple-line",
+          color: [255, 0, 0],
+          width: 3
+        }
       });
-      view.ui.add(bgExpand, "top-left");
+
+      graphicsLayer.add(polylineGraphic);
+
+      const polygonGraphic = new Graphic({
+        geometry: {
+          type: "polygon",
+          rings: [
+            [-89.392, 43.068],
+            [-89.392, 43.076],
+            [-89.378, 43.076],
+            [-89.378, 43.068],
+            [-89.392, 43.068]
+          ]
+        },
+        symbol: {
+          type: "simple-fill",
+          color: [0, 255, 0, 0.25],
+          outline: {
+            color: [0, 120, 0],
+            width: 2
+          }
+        }
+      });
+
+      graphicsLayer.add(polygonGraphic);
+
+      // =====================================================
+      // Part 4: AGOL feature layer with popup
+      // =====================================================
+      const eduLayer = new FeatureLayer({
+        url:
+          "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
+        outFields: ["NAME", "TOT_ENROLL"],
+        popupTemplate: {
+          title: "{NAME}",
+          content:
+            "<b>Total Enrollment:</b> {TOT_ENROLL}<br>" +
+            "<a href='https://www.google.com/search?q={NAME}' target='_blank'>Search school</a>"
+        }
+      });
+
+      map.add(eduLayer);
+
+      // =====================================================
+      // Part 5 + Challenge 4: hosted airports layer
+      // =====================================================
+      const AIRPORTS_LAYER_URL =
+        "PASTE_YOUR_HOSTED_US_AIRPORTS_FEATURESERVER_URL_HERE";
+
+      const airportLabels = {
+        symbol: {
+          type: "text",
+          color: "#ffffff",
+          haloColor: "#5E8D74",
+          haloSize: "2px",
+          font: {
+            size: "12px",
+            family: "Noto Sans"
+          }
+        },
+        labelPlacement: "above-center",
+        labelExpressionInfo: {
+          expression: "$feature.Fac_Name"
+        }
+      };
+
+      const airportLayer = new FeatureLayer({
+        url: AIRPORTS_LAYER_URL,
+        definitionExpression: "Fac_Type = 'AIRPORT'",
+        labelingInfo: [airportLabels],
+        popupTemplate: {
+          title: "Airport",
+          content: "{Fac_Name}"
+        }
+      });
+
+      map.add(airportLayer);
+
+      // =====================================================
+      // Challenge 5: heliports with icon
+      // =====================================================
+      const heliportLayer = new FeatureLayer({
+        url: AIRPORTS_LAYER_URL,
+        definitionExpression: "Fac_Type = 'HELIPORT'",
+        renderer: {
+          type: "simple",
+          symbol: {
+            type: "picture-marker",
+            url: "./heliport.png",
+            width: "20px",
+            height: "20px"
+          }
+        },
+        popupTemplate: {
+          title: "Heliport",
+          content: "{Fac_Name}"
+        }
+      });
+
+      map.add(heliportLayer);
+
     });
   </script>
 
@@ -74,10 +236,9 @@
       width: 100%;
     }
   </style>
-
 </head>
+
 <body>
-  <!-- the div to display the map -->
   <div id="viewDiv"></div>
 </body>
 </html>
