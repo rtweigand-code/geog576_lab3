@@ -151,19 +151,47 @@
       // =====================================================
       // Part 4: AGOL feature layer with popup
       // =====================================================
-      const eduLayer = new FeatureLayer({
-        url:
-          "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
-        outFields: ["NAME", "TOT_ENROLL"],
-        popupTemplate: {
-          title: "{NAME}",
-          content:
-            "<b>Total Enrollment:</b> {TOT_ENROLL}<br>" +
-            "<a href='https://www.google.com/search?q={NAME}' target='_blank'>Search school</a>"
-        }
-      });
+    // =====================================================
+// Universities FeatureLayer (clear symbols + real attributes)
+// =====================================================
 
-      map.add(eduLayer);
+// bright, easy-to-see symbol for universities
+const universityRenderer = {
+  type: "simple",
+  symbol: {
+    type: "simple-marker",
+    style: "circle",
+    size: 10,
+    color: [255, 69, 0, 0.9],      // orange-red
+    outline: {
+      color: [0, 0, 0, 1],
+      width: 1
+    }
+  }
+};
+
+// popup that uses fields that actually exist
+const universityPopup = {
+  title: "{NAME}",
+  content: `
+    <b>City:</b> {CITY}<br>
+    <b>State:</b> {STATE}<br>
+    <b>Total Enrollment:</b> {TOT_ENROLL}<br><br>
+    <a href="https://www.google.com/search?q={NAME}" target="_blank">
+      Search this university
+    </a>
+  `
+};
+
+const eduLayer = new FeatureLayer({
+  url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
+  outFields: ["*"],                // IMPORTANT: request all attributes
+  renderer: universityRenderer,
+  popupTemplate: universityPopup
+});
+
+map.add(eduLayer);
+
 
       // =====================================================
       // Part 5 + Challenge 4: hosted airports layer
