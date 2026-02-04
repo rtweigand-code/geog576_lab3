@@ -31,15 +31,18 @@
       "esri/widgets/Legend"
     ], function (esriConfig, Map, MapView, FeatureLayer, Editor, Legend) {
 
-      // api key from developer dashboard
-      esriConfig.apiKey = "PASTE_API_KEY_HERE";
+      // =========================================================
+      // Lab 3 Part 1: API Key setup
+      // =========================================================
+      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurEzkBozXZgPgjPozCzklawWD863C9mArHp4QeXfLaiy8L2BJTmm_eFlkRBmh-rS8f86DIaVxCZv1qDyzDjRyrQtKAoG97CplbDXiwWMA2bYqtEAxH9-MHlA3tDGSjUp93BMOHIaqXguOZxzW8cFVKszpoaoEbOPaECd9FiSLY6Rg-2FBhrb9bssxhS2Mh6EcsLusRR-qwO3qSJK5S8_0-lU3r-pdC0akyfo2hyekjELXAT1_Mj7DoXAA";
 
-      // base map setup
+      // =========================================================
+      // Lab 3 Part 2: Map + View setup (Topographic basemap)
+      // =========================================================
       const map = new Map({
-        basemap: "arcgis-modern-antique"
+        basemap: "arcgis-topographic"
       });
 
-      // map view
       const view = new MapView({
         container: "viewDiv",
         map: map,
@@ -47,14 +50,19 @@
         zoom: 4
       });
 
-      // editable layer for airports ive been to
+      // =========================================================
+      // Lab 3 Part 3: Add FeatureLayer (hosted in AGOL)
+      // =========================================================
       const myAirports = new FeatureLayer({
+        // NOTE: needs /0 to point at the layer inside the service
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/Aiports_lab3/FeatureServer",
         outFields: ["*"],
         title: "My Airports"
       });
 
-      // icon symbol for airport points
+      // =========================================================
+      // Lab 3 Part 4: Symbology (airport icon)
+      // =========================================================
       myAirports.renderer = {
         type: "simple",
         symbol: {
@@ -65,48 +73,48 @@
         }
       };
 
-      // label with airport code
+      // =========================================================
+      // Lab 3 Part 5: Labels + Popup
+      // =========================================================
+
+      // labels (make sure AirportCode is the actual field name in AGOL)
       myAirports.labelingInfo = [{
-        labelExpressionInfo: {
-          expression: "$feature.AirportCode"
-        },
+        labelExpressionInfo: { expression: "$feature.AirportCode" },
         labelPlacement: "above-center",
         symbol: {
           type: "text",
-          font: {
-            size: 11,
-            weight: "bold"
-          },
+          font: { size: 11, weight: "bold" },
           haloColor: "white",
           haloSize: "1px"
         }
       }];
 
-      // popup to check attribute values
+      // popup (swap fields if your layer doesn’t have them)
       myAirports.popupTemplate = {
-        title: "Airport",
-        content: "Airport Code: {AirportCode}"
+        title: "{AirportCode}",
+        content: `
+          <b>Airport Code:</b> {AirportCode}<br>
+          <b>Notes:</b> {Notes}<br>
+          <b>Date Visited:</b> {DateVisited}
+        `
       };
 
-      // add layer to map
+      // add the layer
       map.add(myAirports);
 
-      // editor widget for adding and editing points
+      // =========================================================
+      // Lab 3 Part 6: Widgets (Editor + Legend)
+      // =========================================================
+      const legend = new Legend({ view: view });
+      view.ui.add(legend, "bottom-left");
+
       const editor = new Editor({
         view: view,
-        layerInfos: [{
-          layer: myAirports
-        }]
+        layerInfos: [{ layer: myAirports }]
       });
       view.ui.add(editor, "top-right");
 
-      // legend widget
-      const legend = new Legend({
-        view: view
-      });
-      view.ui.add(legend, "bottom-left");
-
-      // move zoom so ui doesnt overlap
+      // move zoom so it doesn’t overlap UI
       view.ui.move("zoom", "top-left");
 
     });
