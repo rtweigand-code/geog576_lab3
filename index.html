@@ -222,46 +222,43 @@
 
       // airport icon hosted in repo root
       const airportRenderer = {
-        type: "simple",
-        symbol: {
-          type: "picture-marker",
-          url: "outline_local_airport_black_24dp.png",
-          width: "18px",
-          height: "18px"
+       type: "simple",
+       symbol: {
+       type: "picture-marker",
+       url: "airport.png",
+       width: "18px",
+       height: "18px"
         }
       };
 
-      // labels for airports (Fac_Name)
-      const airportLabels = {
-        symbol: {
-          type: "text",
-          color: "#FFFFFF",
-          haloColor: "#5E8D74",
-          haloSize: "2px",
-          font: {
-            size: "12px",
-            family: "Noto Sans",
-            style: "italic",
-            weight: "normal"
-          }
-        },
-        labelPlacement: "above-center",
-        labelExpressionInfo: { expression: "$feature.Fac_Name" }
-      };
+      const airportPopup = {
+       title: "{Fac_Name}",
+       content: `
+    <b>Type:</b> {Fac_Type}<br>
+    <b>City:</b> {City}<br>
+    <b>State:</b> {State}
+  `
+};
 
-      const airportLayer = new FeatureLayer({
-        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports/FeatureServer",
-        renderer: airportRenderer,
-        definitionExpression: "Fac_Type = 'AIRPORT'",
-        outFields: ["Fac_Name", "Fac_Type"],
-        labelingInfo: [airportLabels],
-        popupTemplate: {
-          title: "{Fac_Name}",
-          content: "Type: {Fac_Type}"
-        }
-      });
+const airportLayer = new FeatureLayer({
+  // hosted airports layer from AGOL
+  url: "PASTE_YOUR_AIRPORTS_REST_URL_HERE/0",
 
-      map.add(airportLayer);
+  // airport symbol
+  renderer: airportRenderer,
+
+  // show only airports
+  definitionExpression: "Fac_Type = 'AIRPORT'",
+
+  // fields used in the popup
+  outFields: ["Fac_Name", "Fac_Type", "City", "State"],
+
+  // popup setup
+  popupTemplate: airportPopup
+});
+
+map.add(airportLayer);
+
 
       // =========================================================
       // Lab 2 Part 6: Styling + filtering (airports already filtered above)
