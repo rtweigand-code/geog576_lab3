@@ -1,291 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Lab 2 - Read AGOL</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Lab 3 - AGOL Write</title>
 
   <link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/light/main.css" />
   <script src="https://js.arcgis.com/4.25/"></script>
 
   <style>
     html, body, #viewDiv {
-      padding: 0;
       margin: 0;
+      padding: 0;
       height: 100%;
       width: 100%;
     }
   </style>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
 
   <script>
     require([
       "esri/config",
       "esri/Map",
       "esri/views/MapView",
-
-      // Lab 2 Part 3 modules (graphics)
-      "esri/Graphic",
-      "esri/layers/GraphicsLayer",
-
-      // Lab 2 Part 4 + Part 5 modules (feature layers from AGOL)
       "esri/layers/FeatureLayer",
+      "esri/widgets/Editor",
+      "esri/widgets/Legend"
+    ], function (esriConfig, Map, MapView, FeatureLayer, Editor, Legend) {
 
-      // Lab 1 widgets I already had
-      "esri/widgets/BasemapGallery",
-      "esri/widgets/Locate",
-      "esri/widgets/Search",
-      "esri/widgets/Expand"
-    ], function (
-      esriConfig,
-      Map,
-      MapView,
-      Graphic,
-      GraphicsLayer,
-      FeatureLayer,
-      BasemapGallery,
-      Locate,
-      Search,
-      Expand
-    ) {
+      // api key from developer dashboard
+      esriConfig.apiKey = "PASTE_API_KEY_HERE";
 
-      // =========================================================
-      // Lab 2 Part 1/2: repo + IDE stuff is outside the code
-      // =========================================================
-
-      // API key for ArcGIS JS
-      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurEzkBozXZgPgjPozCzklawWD863C9mArHp4QeXfLaiy8L2BJTmm_eFlkRBmh-rS8f86DIaVxCZv1qDyzDjRyrQtKAoG97CplbDXiwWMA2bYqtEAxH9-MHlA3tDGSjUp93BMOHIaqXguOZxzW8cFVKszpoaoEbOPaECd9FiSLY6Rg-2FBhrb9bssxhS2Mh6EcsLusRR-qwO3qSJK5S8_0-lU3r-pdC0akyfo2hyekjELXAT1_Mj7DoXAA";
-
-      // =========================================================
-      // Lab 1 base map setup (kept from Lab 1 code)
-      // =========================================================
+      // base map setup
       const map = new Map({
-        basemap: "arcgis-modern-antique"
+        basemap: "arcgis-topographic"
       });
 
+      // map view
       const view = new MapView({
+        container: "viewDiv",
         map: map,
-        center: [-89.3840, 43.0747],
-        scale: 5000,
-        container: "viewDiv"
+        center: [-98.5, 39.5],
+        zoom: 4
       });
 
-      // Search bar (Lab 1 widget)
-      const searchWidget = new Search({ view: view });
-      view.ui.add(searchWidget, "top-right");
-
-      // Locate button (Lab 1 widget)
-      const locateWidget = new Locate({ view: view });
-      view.ui.add(locateWidget, "top-left");
-
-      // Basemap Gallery inside an Expand (Lab 1 widget)
-      const basemapGallery = new BasemapGallery({ view: view });
-      const bgExpand = new Expand({
-        view: view,
-        content: basemapGallery,
-        expanded: false
-      });
-      view.ui.add(bgExpand, "top-left");
-
-      // =========================================================
-      // Lab 2 Part 3: GraphicsLayer + point graphic
-      // Challenge 1: change point symbol shape (diamond instead of circle)
-      // =========================================================
-      const graphicsLayer = new GraphicsLayer();
-      map.add(graphicsLayer);
-
-      const capitolPoint = {
-        type: "point",
-        longitude: -89.3840,
-        latitude: 43.0747
-      };
-
-      const capitolSymbol = {
-        type: "simple-marker",
-        style: "diamond",            // Challenge 1 (not a circle)
-        size: 12,
-        color: [0, 112, 255, 0.95],
-        outline: { color: [255, 255, 255, 1], width: 1.5 }
-      };
-
-      const capitolGraphic = new Graphic({
-        geometry: capitolPoint,
-        symbol: capitolSymbol,
-        attributes: {
-          Name: "Wisconsin State Capitol",
-          Description: "Point graphic centered on the Capitol Square"
-        },
-        popupTemplate: {
-          title: "{Name}",
-          content: "{Description}"
-        }
+      // editable layer for airports ive been to
+      const myAirports = new FeatureLayer({
+        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/Aiports_lab3/FeatureServer/0",
+        outFields: ["*"],
+        title: "My Airports"
       });
 
-      graphicsLayer.add(capitolGraphic);
-
-      // =========================================================
-      // Challenge 2: add a polyline + polygon (simple demo shapes)
-      // =========================================================
-
-      // Polyline graphic
-      const demoLine = {
-        type: "polyline",
-        paths: [
-          [-89.3970, 43.0710],
-          [-89.3840, 43.0900],
-          [-89.3680, 43.0740]
-        ]
-      };
-
-      const demoLineSymbol = {
-        type: "simple-line",
-        color: [255, 0, 0, 1],
-        width: 3
-      };
-
-      graphicsLayer.add(new Graphic({
-        geometry: demoLine,
-        symbol: demoLineSymbol,
-        attributes: { Name: "Demo Polyline" },
-        popupTemplate: { title: "{Name}", content: "Just a demo line graphic" }
-      }));
-
-      // Polygon graphic
-      const demoPolygon = {
-        type: "polygon",
-        rings: [
-          [-89.3955, 43.0805],
-          [-89.3725, 43.0805],
-          [-89.3725, 43.0685],
-          [-89.3955, 43.0685],
-          [-89.3955, 43.0805]
-        ]
-      };
-
-      const demoPolygonSymbol = {
-        type: "simple-fill",
-        color: [0, 200, 0, 0.25],
-        outline: { color: [0, 200, 0, 1], width: 2 }
-      };
-
-      graphicsLayer.add(new Graphic({
-        geometry: demoPolygon,
-        symbol: demoPolygonSymbol,
-        attributes: { Name: "Demo Polygon" },
-        popupTemplate: { title: "{Name}", content: "Just a demo polygon graphic" }
-      }));
-
-      // =========================================================
-      // Lab 2 Part 4: FeatureLayer from AGOL (universities)
-      // Challenge 3: richer popup using REST URL fields + HTML link
-      // =========================================================
-      const universityRenderer = {
-        type: "simple",
-        symbol: {
-          type: "simple-marker",
-          style: "circle",
-          size: 11,                 // easier to see
-          color: "#ff7f00",
-          outline: { color: "#000000", width: 1 }
-        }
-      };
-
-      // Using field names that actually exist in this dataset:
-      // INSTNM = school name, STABBR = state, WEBADDR = website
-      const universityPopup = {
-  title: "{INSTNM}",
-  content: `
-    <b>City:</b> {CITY}, {STABBR}<br>
-    <b>Address:</b> {ADDR}, {ZIP}<br>
-    <b>Phone:</b> {GENTELE}<br>
-    <b>Institution Type:</b> {SECTOR}<br>
-    <b>Level:</b> {ICLEVEL}<br><br>
-
-    <a href="{WEBADDR}">School website</a>
-  `
-      };
-
-
-      const universitiesLayer = new FeatureLayer({
-        url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
-        renderer: universityRenderer,
-        outFields: ["INSTNM", "CITY", "STABBR", "TOT_ENROLL", "WEBADDR"],
-        popupTemplate: universityPopup
-      });
-
-      map.add(universitiesLayer);
-
-      // =========================================================
-      // Lab 2 Part 5: FeatureLayer I uploaded to AGOL (US_Airports)
-      // Challenge 4: add my hosted airports FeatureLayer using its REST URL
-      // =========================================================
-
-     // airport icon
-const airportRenderer = {
-  type: "simple",
-  symbol: {
-    type: "picture-marker",
-    url: "airport.png",
-    width: "18px",
-    height: "18px"
-  }
-};
-
-// popup (only shows when I click)
-const airportPopup = {
-  title: "{Fac_Name}",
-  content: `
-    <b>Type:</b> {Fac_Type}<br>
-    <b>City:</b> {City}<br>
-    <b>State:</b> {State}
-  `
-};
-
-const airportLayer = new FeatureLayer({
-  url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports_lab2_RW/FeatureServer/0",
-  renderer: airportRenderer,
-
-  // only airports (filters out heliports)
-  definitionExpression: "Fac_Type = 'AIRPORT'",
-
-  outFields: ["Fac_Name", "Fac_Type", "City", "State"],
-  popupTemplate: airportPopup
-});
-
-map.add(airportLayer);
-
-      // =========================================================
-      // Lab 2 Part 6: Styling + filtering (airports already filtered above)
-      // Challenge 5: add heliports with a helicopter icon
-      // =========================================================
-      const heliportRenderer = {
+      // icon symbol for airport points
+      myAirports.renderer = {
         type: "simple",
         symbol: {
           type: "picture-marker",
-          url: "heliport.png",
+          url: "https://static.arcgis.com/images/Symbols/Transportation/Airport.png",
           width: "18px",
           height: "18px"
         }
       };
 
-      const heliportLayer = new FeatureLayer({
-        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports_lab2_RW/FeatureServer/0",
-        renderer: heliportRenderer,
-        definitionExpression: "Fac_Type = 'HELIPORT'",
-        outFields: ["Fac_Name", "Fac_Type"],
-        popupTemplate: {
-          title: "{Fac_Name}",
-          content: "Type: {Fac_Type}"
+      // label with airport code
+      myAirports.labelingInfo = [{
+        labelExpressionInfo: {
+          expression: "$feature.AirportCode"
+        },
+        labelPlacement: "above-center",
+        symbol: {
+          type: "text",
+          font: {
+            size: 11,
+            weight: "bold"
+          },
+          haloColor: "white",
+          haloSize: "1px"
         }
-      });
+      }];
 
-      map.add(heliportLayer);
+      // popup to check attribute values
+      myAirports.popupTemplate = {
+        title: "Airport",
+        content: "Airport Code: {AirportCode}"
+      };
+
+      // add layer to map
+      map.add(myAirports);
+
+      // editor widget for adding and editing points
+      const editor = new Editor({
+        view: view,
+        layerInfos: [{
+          layer: myAirports
+        }]
+      });
+      view.ui.add(editor, "top-right");
+
+      // legend widget
+      const legend = new Legend({
+        view: view
+      });
+      view.ui.add(legend, "bottom-left");
+
+      // move zoom so ui doesnt overlap
+      view.ui.move("zoom", "top-left");
 
     });
   </script>
-</head>
-
-<body>
-  <div id="viewDiv"></div>
 </body>
 </html>
