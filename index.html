@@ -54,7 +54,7 @@
       // Lab 3 Part 3: Add FeatureLayer (hosted in AGOL)
       // =========================================================
       const myAirports = new FeatureLayer({
-        // NOTE: needs /0 to point at the layer inside the service
+        // needs /0 to point at the layer inside the service
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/Airports_lab3/FeatureServer",
         outFields: ["*"],
         title: "My Airports"
@@ -77,7 +77,7 @@
       // Lab 3 Part 5: Labels + Popup
       // =========================================================
 
-      // labels (make sure AirportCode is the actual field name in AGOL)
+      // labels (make sure AirportCode = actual field name in AGOL)
       myAirports.labelingInfo = [{
         labelExpressionInfo: { expression: "$feature.AirportCode" },
         labelPlacement: "above-center",
@@ -89,7 +89,7 @@
         }
       }];
 
-      // popup (swap fields if your layer doesn’t have them)
+      // popup (swap fields if layer doesn’t have them)
       myAirports.popupTemplate = {
         title: "{AirportCode}",
         content: `
@@ -114,7 +114,7 @@
       });
       view.ui.add(editor, "top-right");
 
-      // move zoom so it doesn’t overlap UI
+      // move zoom so no overlap w UI
       view.ui.move("zoom", "top-left");
 
     });
