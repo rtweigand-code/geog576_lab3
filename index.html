@@ -244,20 +244,20 @@ const airportLayer = new FeatureLayer({
   // hosted airports layer from AGOL
   url: "PASTE_YOUR_AIRPORTS_REST_URL_HERE/0",
 
-  // airport symbol
-  renderer: airportRenderer,
+       // airport symbol
+       renderer: airportRenderer,
 
-  // show only airports
-  definitionExpression: "Fac_Type = 'AIRPORT'",
+       // show only airports
+       definitionExpression: "Fac_Type = 'AIRPORT'",
 
-  // fields used in the popup
-  outFields: ["Fac_Name", "Fac_Type", "City", "State"],
+       // fields used in the popup
+       outFields: ["Fac_Name", "Fac_Type", "City", "State"],
 
-  // popup setup
-  popupTemplate: airportPopup
-});
+       // popup setup
+       popupTemplate: airportPopup
+      });
 
-map.add(airportLayer);
+      map.add(airportLayer);
 
 
       // =========================================================
